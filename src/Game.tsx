@@ -20,6 +20,18 @@ function Game() {
   useEffect(() => {
     checkForWinner()
   }, [gameState])
+
+  const resetBoard = () => setGameState(INITIAL_GAME_STATE)
+  
+  const handleWin = () => {
+    window.alert(`Congrats player ${currentPlayer}! You're the winner`);
+    resetBoard()
+  }
+
+  const handleDraw = () => {
+    window.alert(`Game ended in a draw!`)
+    resetBoard()
+  }
   
   const checkForWinner = () => {
     let roundWon = false
@@ -39,13 +51,12 @@ function Game() {
       }
     }
     if (roundWon){
-      window.alert(`Congrats player ${currentPlayer}! You're the winner`)
+      setTimeout(() => handleWin(), 500)
       return
     }
 
     if (!gameState.includes("")) {
-      window.alert("Game is a draw!")
-      // setTimeout(() => handleDraw(), 500);
+      setTimeout(() => handleDraw(), 500);
       return;
     }
 
