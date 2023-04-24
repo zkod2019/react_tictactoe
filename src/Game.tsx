@@ -1,7 +1,12 @@
 import {useState, useEffect} from 'react'
 import Square from './Square'
 
+type Scores = {
+  [key: string]: number // type script errors avoided by setting key string and value number
+}
+
 const INITIAL_GAME_STATE = ["","","","","","","","",""]
+const INITIAL_SCORES: Scores = {X:0, O:0} // key value pairs with X and O
 const WINNING_COMBOS = [
   [0, 1, 2],
   [3, 4, 5],
@@ -16,7 +21,17 @@ const WINNING_COMBOS = [
 function Game() {
   const [gameState, setGameState] =  useState(INITIAL_GAME_STATE)
   const [currentPlayer, setCurrentPlayer] = useState("X")
+  const [scores, setScores] = useState(INITIAL_SCORES)// manage the scores in state
 
+  useEffect(() => { // using local storage so score doesn't refresh
+    const storedScores = localStorage.getItem("scores") 
+    if (storedScores){
+     setScores(JSON.parse(storedScores)) 
+     // if no scores in local storage we can't return empty string
+     // so we only parse it if stored scores exist
+
+    }
+  }, [])
   useEffect(() => {
     checkForWinner()
   }, [gameState])
@@ -25,6 +40,11 @@ function Game() {
   
   const handleWin = () => {
     window.alert(`Congrats player ${currentPlayer}! You're the winner`);
+    const newPlayerScore = scores[currentPlayer] + 1;
+    const newScores = {...scores}
+    newScores[currentPlayer] = newPlayerScore
+    setScores(newScores)
+    localStorage.setItem("scores", JSON.stringify(newScores))
     resetBoard()
   }
 
@@ -87,8 +107,10 @@ function Game() {
             <Square key={index} onClick={handleCellClick} {...{index, player}}/>
           ) )}
         </div>
-        <div>
-          Scores Go Here
+        <div className="mx-auto w-96 text-2xl text-serif">
+          <p className="text-white mt-5">Next Player: <span>{currentPlayer}</span></p>
+            <p className="text-white mt-5">Player X wins: <span>{scores["X"]}</span></p>
+            <p className="text-white mt-5">Player O wins: <span>{scores["O"]}</span></p>
         </div>
       </div>
       </div>
