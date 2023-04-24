@@ -5,9 +5,9 @@ type Scores = {
   [key: string]: number // type script errors avoided by setting key string and value number
 }
 
-const INITIAL_GAME_STATE = ["","","","","","","","",""]
+const INITIAL_GAME_STATE = ["","","","","","","","",""] // what players have on the board
 const INITIAL_SCORES: Scores = {X:0, O:0} // key value pairs with X and O
-const WINNING_COMBOS = [
+const WINNING_COMBOS = [ // array of arrays for winning combos
   [0, 1, 2],
   [3, 4, 5],
   [6, 7, 8],
@@ -20,8 +20,8 @@ const WINNING_COMBOS = [
 
 function Game() {
   const [gameState, setGameState] =  useState(INITIAL_GAME_STATE)
-  const [currentPlayer, setCurrentPlayer] = useState("X")
-  const [scores, setScores] = useState(INITIAL_SCORES)// manage the scores in state
+  const [currentPlayer, setCurrentPlayer] = useState("X") // originally setting X as the first player
+  const [scores, setScores] = useState(INITIAL_SCORES) // manage the scores in state
 
   useEffect(() => { // using local storage so score doesn't refresh
     const storedScores = localStorage.getItem("scores") 
@@ -29,10 +29,13 @@ function Game() {
      setScores(JSON.parse(storedScores)) 
      // if no scores in local storage we can't return empty string
      // so we only parse it if stored scores exist
-
     }
   }, [])
+
   useEffect(() => {
+    if (gameState === INITIAL_GAME_STATE){
+      return;
+    }
     checkForWinner()
   }, [gameState])
 
@@ -40,7 +43,7 @@ function Game() {
   
   const handleWin = () => {
     window.alert(`Congrats player ${currentPlayer}! You're the winner`);
-    const newPlayerScore = scores[currentPlayer] + 1;
+    const newPlayerScore = scores[currentPlayer] + 1; // increase the score of the player who won
     const newScores = {...scores}
     newScores[currentPlayer] = newPlayerScore
     setScores(newScores)
@@ -55,18 +58,18 @@ function Game() {
   
   const checkForWinner = () => {
     let roundWon = false
-    for (let i = 0; i < WINNING_COMBOS.length; i++){
+    for (let i = 0; i < WINNING_COMBOS.length; i++){ // loop over winning combos
       const winCombo = WINNING_COMBOS[i];
       let a = gameState[winCombo[0]]
       let b = gameState[winCombo[1]]
       let c = gameState[winCombo[2]]
 
       if ([a, b, c].includes("")){
-        continue
+        continue // if there's an empty string then you continue playing
       }
 
       if (a === b && b === c){
-        roundWon = true 
+        roundWon = true // checks if all 3 Xs are connected to each other (player wins)
         break;
       }
     }
@@ -75,7 +78,7 @@ function Game() {
       return
     }
 
-    if (!gameState.includes("")) {
+    if (!gameState.includes("")) { // if game finished but there are no empty strings (means game is a draw)
       setTimeout(() => handleDraw(), 500);
       return;
     }
@@ -84,7 +87,7 @@ function Game() {
 
   }
   const changePlayer = () => {
-    setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
+    setCurrentPlayer(currentPlayer === "X" ? "O" : "X"); // if current player was X, then set current player to O. otherwise set to X
   }
   const handleCellClick = (event: any) => {
     const cellIndex = Number(event.target.getAttribute("data-cell-index"))
@@ -103,7 +106,7 @@ function Game() {
       </h1>
       <div>
         <div className="grid grid-cols-3 gap-3 mx-auto w-96">
-          {gameState.map((player, index) => (
+          {gameState.map((player, index) => ( 
             <Square key={index} onClick={handleCellClick} {...{index, player}}/>
           ) )}
         </div>
